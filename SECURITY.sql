@@ -12,12 +12,58 @@ CREATE PROCEDURE sp_UpdateOrderStatus
     @NewStatus NVARCHAR(30)
 AS
 BEGIN
-    IF @NewStatus IN ('Собран', 'Передан в доставку')
+    IF @NewStatus IN ('РЎРѕР±СЂР°РЅ', 'РџРµСЂРµРґР°РЅ РІ РґРѕСЃС‚Р°РІРєСѓ')
     BEGIN
         UPDATE Orders SET OrderStatus = @NewStatus WHERE ID_Order = @OrderID;
-        PRINT 'Статус заказа обновлён.';
+        PRINT 'РЎС‚Р°С‚СѓСЃ Р·Р°РєР°Р·Р° РѕР±РЅРѕРІР»С‘РЅ.';
     END
     ELSE
-        PRINT 'Ошибка: недопустимый статус для склада.';
+        PRINT 'РћС€РёР±РєР°: РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ СЃС‚Р°С‚СѓСЃ РґР»СЏ СЃРєР»Р°РґР°.';
+END;
+GO
+
+CREATE TRIGGER trg_Orders_Insert
+ON Orders
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO Audit (TableName, ActionType, UserName, Details)
+    SELECT 
+        'Orders', 
+        'INSERT', 
+        SUSER_SNAME(), 
+        'Р”РѕР±Р°РІР»РµРЅ Р·Р°РєР°Р· ID: ' + CAST(i.ID_Order AS NVARCHAR(10)) + ', РЎС‚Р°С‚СѓСЃ: ' + i.OrderStatus
+    FROM inserted i;
+END;
+GO
+
+CREATE TRIGGER trg_Orders_Update
+ON Orders
+AFTER UPDATE
+AS
+BEGIN
+    INSERT INTO Audit (TableName, ActionType, UserName, Details)
+    SELECT 
+        'Orders', 
+        'UPDATE', 
+        SUSER_SNAME(), 
+        'РР·РјРµРЅРµРЅ СЃС‚Р°С‚СѓСЃ Р·Р°РєР°Р·Р° ID: ' + CAST(i.ID_Order AS NVARCHAR(10)) + ' СЃ "' + d.OrderStatus + '" РЅР° "' + i.OrderStatus + '"'
+    FROM inserted i
+    JOIN deleted d ON i.ID_Order = d.ID_Order;
+END;
+GO
+
+CREATE TRIGGER trg_Products_Delete
+ON Products
+AFTER DELETE
+AS
+BEGIN
+    INSERT INTO Audit (TableName, ActionType, UserName, Details)
+    SELECT 
+        'Products', 
+        'DELETE', 
+        SUSER_SNAME(), 
+        'РЈРґР°Р»РµРЅ С‚РѕРІР°СЂ: ' + d.ProductName + ', Р¦РµРЅР° Р±С‹Р»Р°: ' + CAST(d.Price AS NVARCHAR(20))
+    FROM deleted d;
 END;
 GO
