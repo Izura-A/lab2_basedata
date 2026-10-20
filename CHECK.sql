@@ -1,12 +1,7 @@
 USE OnlineStore;
 GO
-SELECT * FROM Products;
-SELECT * FROM Clients;
-SELECT * FROM Orders;
-GO
 
-
-SELECT 'Categories' AS Таблица, COUNT(*) AS Строк FROM Categories
+SELECT 'Categories' AS TableName, COUNT(*) AS RowCount FROM Categories
 UNION ALL
 SELECT 'Products', COUNT(*) FROM Products
 UNION ALL
@@ -17,4 +12,16 @@ UNION ALL
 SELECT 'OrderItems', COUNT(*) FROM OrderItems
 UNION ALL
 SELECT 'OrderComments', COUNT(*) FROM OrderComments;
+GO
+
+INSERT INTO Orders (ID_Client, OrderStatus) VALUES (1, 'РќРѕРІС‹Р№');
+GO
+
+SELECT * FROM Audit;
+GO
+
+UPDATE Orders SET OrderStatus = 'РЎРѕР±СЂР°РЅ' WHERE ID_Order = (SELECT MAX(ID_Order) FROM Orders);
+GO
+
+SELECT * FROM Audit;
 GO
