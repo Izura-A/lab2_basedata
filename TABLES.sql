@@ -25,8 +25,8 @@ CREATE TABLE Orders (
     ID_Order INT PRIMARY KEY IDENTITY(1,1),
     ID_Client INT FOREIGN KEY REFERENCES Clients(ID_Client),
     OrderDate DATE DEFAULT GETDATE(),
-    OrderStatus NVARCHAR(30) DEFAULT 'Новый' 
-        CHECK (OrderStatus IN ('Новый', 'Собран', 'Передан в доставку', 'Отменен', 'Доставлен'))
+    OrderStatus NVARCHAR(30) DEFAULT 'РќРѕРІС‹Р№' 
+        CHECK (OrderStatus IN ('РќРѕРІС‹Р№', 'РЎРѕР±СЂР°РЅ', 'РџРµСЂРµРґР°РЅ РІ РґРѕСЃС‚Р°РІРєСѓ', 'РћС‚РјРµРЅРµРЅ', 'Р”РѕСЃС‚Р°РІР»РµРЅ'))
 ) ON Fg_orders;
 
 CREATE TABLE OrderItems (
@@ -41,5 +41,15 @@ CREATE TABLE OrderComments (
     ID_Order INT FOREIGN KEY REFERENCES Orders(ID_Order),
     CommentText NVARCHAR(500),
     CommentDate DATETIME DEFAULT GETDATE()
+) ON Fg_orders;
+
+-- РќРћР’РћР•: РўР°Р±Р»РёС†Р° РґР»СЏ Р°СѓРґРёС‚Р° (Рї.1 Р·Р°РґР°РЅРёСЏ)
+CREATE TABLE Audit (
+    AuditID INT PRIMARY KEY IDENTITY(1,1),
+    TableName NVARCHAR(100),
+    ActionType NVARCHAR(10),
+    UserName NVARCHAR(100),
+    ActionDate DATETIME DEFAULT GETDATE(),
+    Details NVARCHAR(MAX)
 ) ON Fg_orders;
 GO
